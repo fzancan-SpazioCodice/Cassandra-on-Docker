@@ -1,1 +1,1 @@
-# Cassandra-on-Docker
+# Cassandra on Docker
