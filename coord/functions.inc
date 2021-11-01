@@ -52,16 +52,3 @@ create_network() {
 
   log_info "... done."
 }
-
-# Start the coordination node
-start_coord() {
-  log_info "Starting the coordination node ..."
-  docker run ${CASSANDRA_RUN_DETACHED} -it --name cassandra_coord \
-    --cidfile /tmp/cassandra_coord.cid \
-    --network cassandra-net \
-    --publish ${CASSANDRA_COORD_INC_HOST_PORT}:${CASSANDRA_COORD_INC_CONTAINER_PORT},${CASSANDRA_COORD_INC_SSL_HOST_PORT}:${CASSANDRA_COORD_INC_SSL_CONTAINER_PORT},${CASSANDRA_COORD_JMX_HOST_PORT}:${CASSANDRA_COORD_JMX_CONTAINER_PORT},${CASSANDRA_COORD_CQL_HOST_PORT}:${CASSANDRA_COORD_CQL_CONTAINER_PORT},${CASSANDRA_COORD_SSL_HOST_PORT}:${CASSANDRA_COORD_SSL_CONTAINER_PORT},${CASSANDRA_COORD_THRIFT_HOST_PORT}:${CASSANDRA_COORD_THRIFT_CONTAINER_PORT} \
-    --env  
-    cassandra:$CASSANDRA_TAG
-
-  log_info "... done."
-}
