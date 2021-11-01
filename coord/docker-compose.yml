@@ -24,6 +24,8 @@ services:
     networks:
       default:
         ipv4_address: ${CASSANDRA_COORD_IPV4_ADDRESS}
+    volumes:
+      - cassandra-data:/var/lib/cassandra    
 
   # Ephemeral node, to initialize data structures
   cassandra-init:
@@ -51,10 +53,10 @@ services:
       echo Waiting for the coordination node to start ...
       && while [ `timeout 5 /bin/bash -c \"</dev/tcp/${CASSANDRA_COORD_LISTEN_ADDRESS}/${CASSANDRA_COORD_CQL_CONTAINER_PORT}\"; echo $$?` -ne 0 ]; do echo Coordination node ${CASSANDRA_COORD_LISTEN_ADDRESS} not available yet; sleep 5; done  
       && echo Creating keyspace...
-      && /opt/cassandra/bin/cqlsh -e \"${CASSANDRA_INIT_KEYSPACE}\" ${CASSANDRA_COORD_LISTEN_ADDRESS} ${CASSANDRA_COORD_CQL_CONTAINER_PORT}
+      && /opt/cassandra/bin/cqlsh -e \"CREATE KEYSPACE IF NOT EXISTS cod_test WITH replication={'class':'SimpleStrategy','replication_factor':${CASSANDRA_REPLICATION_FACTOR}} AND durable_writes=TRUE\" ${CASSANDRA_COORD_LISTEN_ADDRESS} ${CASSANDRA_COORD_CQL_CONTAINER_PORT}
       && echo ... done.
       && echo Creating table...
-      && /opt/cassandra/bin/cqlsh -e \"${CASSANDRA_INIT_TABLE}\" ${CASSANDRA_COORD_LISTEN_ADDRESS} ${CASSANDRA_COORD_CQL_CONTAINER_PORT}
+      && /opt/cassandra/bin/cqlsh -e \"CREATE TABLE IF NOT EXISTS cod_test.records (\"id\" bigint,\"rec_data\" VARCHAR,PRIMARY KEY(id)) WITH compression = {'class': 'ZstdCompressor', 'chunk_length_in_kb': 64, 'crc_check_chance': 0.5, 'compression_level': 5}\" ${CASSANDRA_COORD_LISTEN_ADDRESS} ${CASSANDRA_COORD_CQL_CONTAINER_PORT}
       && echo ... done.
       && exit 0"
     networks:
@@ -64,3 +66,6 @@ services:
 networks:
   default:
     name: ${CASSANDRA_NETWORK_NAME}
+
+volumes:
+  cassandra-data:
