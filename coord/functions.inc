@@ -26,6 +26,7 @@ envup() {
     while read line; do 
       export "$line"; 
     done < $tmpfile
+    rm $tmpfile
   else
     echo "No $file file found" 1>&2
     return 1
